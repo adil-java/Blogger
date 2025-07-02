@@ -1,0 +1,31 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "Api for Blog Application",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "dev",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "nodejs",
+    "reactjs"
+  ],
+  "author": "Adil",
+  "license": "ISC",
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/express": "^1.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "firebase": "^11.9.1",
+    "mongoose": "^8.16.1",
+    "mysql2": "^3.14.1",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

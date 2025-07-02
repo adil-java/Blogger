@@ -1,0 +1,136 @@
+/* -------- layout -------- */
+.blog-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+  font-family: system-ui, sans-serif;
+  color: #1f2937;
+  line-height: 1.65;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+}
+
+/* -------- meta header -------- */
+.blog-meta {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.blog-date {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.blog-title {
+  margin: 0.25rem 0;
+  font-size: 2.25rem;
+  font-weight: 700;
+}
+
+.blog-category {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.1rem;
+  color: #2563eb;
+}
+
+.blog-author {
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+/* -------- hero image -------- */
+.blog-image {
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+/* -------- rich‑text content -------- */
+.rich-text h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.rich-text h3 {
+  margin: 1.75rem 0 0.6rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+.rich-text h4 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.rich-text p {
+  margin: 0.8rem 0;
+}
+
+.rich-text ul,
+.rich-text ol {
+  margin: 1rem 0 1rem 1.25rem;
+  padding-left: 1rem;
+}
+
+.rich-text li {
+  margin-bottom: 0.4rem;
+}
+
+.rich-text blockquote {
+  margin: 1.5rem 0;
+  padding: 0.7rem 1.25rem;
+  background: #f3f4f6;
+  border-left: 4px solid #a78bfa;
+  font-style: italic;
+  color: #374151;
+}
+
+.rich-text strong {
+  font-weight: 600;
+}
+
+.rich-text em {
+  font-style: italic;
+}
+
+/* -------- responsiveness -------- */
+@media (max-width: 768px) {
+  .blog-container {
+    padding: 1.5rem 1rem;
+  }
+  .blog-title {
+    font-size: 1.9rem;
+  }
+  .blog-image {
+    height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .blog-container {
+    padding: 1rem 0.75rem;
+  }
+  .blog-title {
+    font-size: 1.6rem;
+  }
+  .blog-image {
+    height: 200px;
+  }
+  .rich-text h2 {
+    font-size: 1.35rem;
+  }
+  .rich-text h3 {
+    font-size: 1.2rem;
+  }
+}

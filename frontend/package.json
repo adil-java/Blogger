@@ -1,0 +1,51 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "postinstall": "flowbite-react patch"
+  },
+  "dependencies": {
+    "@material-tailwind/react": "^2.1.10",
+    "@tailwindcss/vite": "^4.1.10",
+    "@tiptap/pm": "^2.23.1",
+    "@tiptap/react": "^2.23.1",
+    "@tiptap/starter-kit": "^2.23.1",
+    "@udecode/plate": "^48.0.5",
+    "@udecode/plate-common": "^41.0.13",
+    "@udecode/plate-serializer-html": "^21.5.1",
+    "@udecode/plate-toolbar": "^8.3.0",
+    "@udecode/plate-ui-button": "^21.5.1",
+    "axios": "^1.10.0",
+    "flowbite-react": "^0.11.8",
+    "froala-editor": "^4.5.2",
+    "lucide-react": "^0.522.0",
+    "moment": "^2.30.1",
+    "quill": "^2.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-froala-wysiwyg": "^4.5.2",
+    "react-hot-toast": "^2.5.2",
+    "react-loading-skeleton": "^3.5.0",
+    "react-quill": "^2.0.0",
+    "react-router-dom": "^7.6.2",
+    "tailwindcss": "^4.1.10"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "vite": "^6.3.5"
+  }
+}
