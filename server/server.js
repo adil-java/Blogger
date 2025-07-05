@@ -3,6 +3,7 @@ import "dotenv/config"
 import cors from "cors"
 import connectDB from "./configs/db.js";
 import adminRouter from "./routes/admin.routes.js";
+import blogRouter from "./routes/blog.routes.js";
 const app =express();
 
 await connectDB()
@@ -17,6 +18,7 @@ app.get("/",(req,res)=>{
     res.send("Welcome to the server").status(200)
 })
 app.use('/api/admin',adminRouter)
+app.use("/api/blog",blogRouter)
 app.listen(port,()=>{
     console.log("https://localhost:"+port)
 }
