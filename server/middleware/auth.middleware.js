@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 const auth = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log("AUTH HEADER:", authHeader); // log 1
+  // console.log("AUTH HEADER:", authHeader); // log 1
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ success: false, message: "No token provided" });
