@@ -70,11 +70,14 @@ export const blogAPI = {
   },
 
   // Get single blog by ID (public)
+  getUserBlog: async () => {
+    const response = await api.get("/blog/my-blogs");
+    return response.data;
+  },
   getById: async (id) => {
     const response = await api.get(`/blog/${id}`);
     return response.data;
   },
-
   // Create new blog (admin)
   create: async (formData) => {
     const response = await api.post("/blog/add", formData, {

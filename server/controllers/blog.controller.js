@@ -35,6 +35,7 @@ export const addBlog = async (req, res) => {
 
     const image = optimizeImage;
     const blog = await Blog.create({
+      authorId: req.user.id,
       title,
       description,
       category,
@@ -145,6 +146,27 @@ export const updateBlog = async (req, res) => {
     }
 
     res.json({ success: true, message: "Blog updated successfully", blog });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+export const currentUserBlog = async (req, res) => {
+  try {
+    const blogs = await Blog.find({ authorId: req.user.id }).sort({
+      createdAt: -1,
+    });
+
+    if (!blogs || blogs.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No blogs found",
+      });
+    }
+
+    res.json({
+      success: true,
+      blogs: blogs, // ← Return array, not single blog
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

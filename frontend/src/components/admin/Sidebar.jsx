@@ -24,7 +24,7 @@ export default function Sidebar() {
     { to: '/admin', icon: HomeIcon, label: 'Dashboard', end: true },
     { to: '/admin/addBlog', icon: PlusSquareIcon, label: 'Add Blog' },
     { to: '/admin/comments', icon: MessageCircleCodeIcon, label: 'Comments' },
-    { to: '/admin/listBlog', icon: ListIcon, label: 'List Blog' },
+    { to: '/admin/', icon: ListIcon, label: 'List Blog' },
     {to: '/', icon: HomeIcon, label: 'Browse Blogs' }
   ];
 

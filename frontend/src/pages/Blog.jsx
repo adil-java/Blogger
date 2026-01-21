@@ -135,8 +135,9 @@ export default function Blog() {
     <article className="blog-container">
       {/* meta */}
 
+        <div onClick={()=>navigate('/')}><HomeIcon/><span>Browse blogs</span>
+      </div>
       <header className="blog-meta">
-        <div onClick={()=>navigate('/')}>{<HomeIcon/>}</div>
         <p className="blog-date">
           Published on: {Moment(data.createdAt).format('MMMM Do, YYYY')}
         </p>

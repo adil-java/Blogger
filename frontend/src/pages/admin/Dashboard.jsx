@@ -26,7 +26,7 @@ export default function Dashboard() {
     try {
       // Try to fetch from API
       const [blogsRes, commentsRes] = await Promise.all([
-        blogAPI.getAll(),
+        blogAPI.getUserBlog(),
         commentAPI.getAll()
       ]);
 
