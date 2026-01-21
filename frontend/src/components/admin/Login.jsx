@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
-    // TODO: call your auth API here
-    setTimeout(() => {
-      setLoading(false);
-      alert(`Logged in as ${email}`);
-    }, 1000);
+    const result = await login(email, password);
+    
+    if (result.success) {
+      toast.success('Login successful!');
+    } else {
+      setError(result.message);
+      toast.error(result.message);
+    }
+    
+    setLoading(false);
   };
 
   return (
@@ -23,6 +33,12 @@ export default function Login() {
         className="w-full max-w-sm bg-white rounded-lg shadow-md p-6 space-y-5"
       >
         <h1 className="text-2xl font-bold text-center">Admin Login</h1>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
+            {error}
+          </div>
+        )}
 
         <div className="space-y-1">
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">

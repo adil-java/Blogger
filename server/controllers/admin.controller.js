@@ -1,16 +1,17 @@
-import jwt from "jsonwebtoken"
-export const adminLogin=async(req,res)=>{
-    try {
-        const {email,password} =req.body
+// Admin-specific controller functions
+// Authentication is now handled by auth.controller.js
 
-        if(email!=process.env.ADMIN_EMAIL ||password!=process.env.ADMIN_PASS){
-            return res.json({sucess:false,message:"Invalid Credentials"})
-
-        }
-        const token =jwt.sign({email},process.env.JWT_SECRET)
-        res.json({sucess:true,token})
-
-    } catch (error) {
-        res.json({sucess:false,message:error.message})
-    }
-}
+// Example: Get dashboard statistics
+export const getDashboardStats = async (req, res) => {
+  try {
+    // This can be extended to fetch real stats from the database
+    res.json({
+      success: true,
+      stats: {
+        message: "Dashboard stats endpoint - extend as needed",
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

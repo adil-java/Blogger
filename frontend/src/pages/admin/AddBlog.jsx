@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { assets, categories } from "../../assets/assert.js";
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
+import { blogAPI } from '../../api/api.js';
+import toast from 'react-hot-toast';
 
 /**
  * AddBlog (cross‑platform responsive)
@@ -10,6 +13,7 @@ import 'quill/dist/quill.snow.css';
  * – Utility classes for dark‑mode friendly UI
  */
 export default function AddBlog() {
+  const navigate = useNavigate();
   const editorRef = useRef(null);
   const quillRef = useRef(null);
 
@@ -18,8 +22,9 @@ export default function AddBlog() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(assets.uploadArea);
   const [isPublished, setIsPublished] = useState(false);
-  const [Category,setCategory] =useState('')
+  const [category, setCategory] = useState('');
   const [loadingAI, setLoadingAI] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   /* ----------------- helpers ----------------- */
@@ -37,36 +42,70 @@ export default function AddBlog() {
     }
     setError('');
     setLoadingAI(true);
-    // try {
-    //   const res = await fetch('/api/generate-blog', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ prompt: title }),
-    //   });
-    //   const { html = '' } = await res.json();
-    //   quillRef.current.root.innerHTML = html;
-    //   setContent(html);
-    // } catch (err) {
-    //   console.error(err);
-    // } finally {
-    //   setLoadingAI(false);
-    // }
+    // AI generation logic can be added here
+    setTimeout(() => setLoadingAI(false), 1000);
   };
 
   const handleSave = async () => {
     const htmlContent = quillRef.current.root.innerHTML;
-    setContent(htmlContent);
+    
+    // Validation
+    if (!title.trim()) {
+      setError('Title is required');
+      toast.error('Title is required');
+      return;
+    }
+    if (!category) {
+      setError('Please select a category');
+      toast.error('Please select a category');
+      return;
+    }
+    if (!imageFile) {
+      setError('Please upload an image');
+      toast.error('Please upload an image');
+      return;
+    }
+    if (!htmlContent || htmlContent === '<p><br></p>') {
+      setError('Please write some content');
+      toast.error('Please write some content');
+      return;
+    }
+
+    setError('');
+    setSaving(true);
 
     const formData = new FormData();
-    formData.append('title',title);
-    formData.append('content', htmlContent);
-    formData.append('isPublished', isPublished);
-    formData.append('category',Category );
+    formData.append('blog', JSON.stringify({
+      title,
+      description: htmlContent,
+      category,
+      isPublished
+    }));
+    formData.append('image', imageFile);
 
-    if (imageFile) formData.append('image', imageFile);
-    console.log('FormData entries →', [...formData.entries()]);
-   
-    // await fetch('/api/blogs', { method: 'POST', body: formData });
+    try {
+      const response = await blogAPI.create(formData);
+      if (response.success) {
+        toast.success('Blog created successfully!');
+        // Reset form
+        setTitle('');
+        setCategory('');
+        setIsPublished(false);
+        setImageFile(null);
+        setImagePreview(assets.uploadArea);
+        quillRef.current.root.innerHTML = '';
+        navigate('/admin/listBlog');
+      } else {
+        setError(response.message || 'Failed to create blog');
+        toast.error(response.message || 'Failed to create blog');
+      }
+    } catch (err) {
+      console.error('Error creating blog:', err);
+      setError('Failed to create blog');
+      toast.error('Failed to create blog');
+    } finally {
+      setSaving(false);
+    }
   };
 
   /* ----------------- mount Quill ----------------- */
@@ -140,25 +179,32 @@ export default function AddBlog() {
       </div>
 
       {/* Publish toggle */}
-      <div className="flex items-center gap-2">
-        <input
-          id="published"
-          type="checkbox"
-          checked={isPublished}
-          onChange={(e) => setIsPublished(e.target.checked)}
-          className="h-4 w-4 accent-blue-600"
-        />
-        <label htmlFor="published" className="text-sm text-gray-500">Publish</label>
-        <div>
-
-        <label htmlFor="category">Category:</label>
-        <select name="category" id="category">
-          <option value=""> select category</option>
-          {categories.map((item,index)=>(
-            <option onChange={(e)=>setCategory(e.target.value)} key={index} value={item}>{item}</option>
-          ))}
-        </select>
-          </div>
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          <input
+            id="published"
+            type="checkbox"
+            checked={isPublished}
+            onChange={(e) => setIsPublished(e.target.checked)}
+            className="h-4 w-4 accent-blue-600"
+          />
+          <label htmlFor="published" className="text-sm text-gray-500">Publish immediately</label>
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="category" className="text-sm text-gray-500">Category:</label>
+          <select 
+            name="category" 
+            id="category" 
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select category</option>
+            {categories.filter(c => c !== 'All').map((item, index) => (
+              <option key={index} value={item}>{item}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Action buttons */}
@@ -173,9 +219,10 @@ export default function AddBlog() {
 
         <button
           onClick={handleSave}
-          className="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+          disabled={saving}
+          className="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
         >
-          Save Blog
+          {saving ? 'Saving...' : 'Save Blog'}
         </button>
       </div>
     </section>

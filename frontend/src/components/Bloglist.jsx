@@ -1,33 +1,56 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { categories, blogs_data } from '../assets/assert.js';
+import { categories, blogs_data as fallbackBlogs } from '../assets/assert.js';
 import { BlogCard } from './BlogCard.jsx';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { blogAPI } from '../api/api.js';
+import toast from 'react-hot-toast';
+import { Search, Sparkles } from 'lucide-react';
 
 export default function BlogList() {
   const [query, setQuery] = useState('');
+  const [blogs, setBlogs] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [activeCat, setActiveCat] = useState('All');
   const [loading, setLoading] = useState(true);
 
+  // Fetch blogs from API
   useEffect(() => {
-    // Simulate async fetch delay
-    const timeout = setTimeout(() => {
-      const results = blogs_data.filter(b => {
-        const text = `${b.title} ${b.author} ${b.description} ${b.category}`.toLowerCase();
-        return (
-          (activeCat === 'All' || b.category === activeCat) &&
-          text.includes(query.trim().toLowerCase()) &&
-          b.isPublished
-        );
-      });
-      setFiltered(results);
-      setLoading(false);
-    }, 1000); // simulate loading delay
+    const fetchBlogs = async () => {
+      try {
+        const response = await blogAPI.getAll();
+        if (response.success) {
+          setBlogs(response.blogs);
+        } else {
+          // Fallback to static data if API fails
+          setBlogs(fallbackBlogs);
+          toast.error('Using cached data');
+        }
+      } catch (error) {
+        console.error('Failed to fetch blogs:', error);
+        // Fallback to static data
+        setBlogs(fallbackBlogs);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timeout);
-  }, [query, activeCat]);
+    fetchBlogs();
+  }, []);
+
+  // Filter blogs based on search and category
+  useEffect(() => {
+    const results = blogs.filter(b => {
+      const text = `${b.title} ${b.author || ''} ${b.description} ${b.category}`.toLowerCase();
+      return (
+        (activeCat === 'All' || b.category === activeCat) &&
+        text.includes(query.trim().toLowerCase()) &&
+        b.isPublished
+      );
+    });
+    setFiltered(results);
+  }, [query, activeCat, blogs]);
 
   return (
     <div className="px-4">
@@ -66,19 +89,24 @@ export default function BlogList() {
       </div>
 
       {/* Blog Cards or Skeleton */}
-      <div className="flex justify-center flex-wrap gap-2">
+      <div className="flex justify-center flex-wrap gap-6">
         {loading ? (
-          [...Array(blogs_data.length-1)].map((_, i) => (
-            <div key={i} className="w-78 ">
-              <Skeleton height={180} baseColor="#e2e8f0" highlightColor="#d1e8f1" />
-              <Skeleton height={30} width="50%" />
-              <Skeleton count={2} />
-              <Skeleton height={30} width="40%" />
+          [...Array(6)].map((_, i) => (
+            <div key={i} className="w-80">
+              <Skeleton height={180} baseColor="#e2e8f0" highlightColor="#d1e8f1" borderRadius={16} />
+              <Skeleton height={30} width="50%" className="mt-4" />
+              <Skeleton count={2} className="mt-2" />
+              <Skeleton height={30} width="40%" className="mt-2" />
             </div>
           ))
         ) : filtered.length > 0 ? (
-          filtered.map(b => (
-            <Link key={b._id} to={`/blog/${b._id}`} className="cursor-pointer block transition-all ease-in">
+          filtered.map((b, index) => (
+            <Link 
+              key={b._id} 
+              to={`/blog/${b._id}`} 
+              className="block animate-fade-in-up"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <BlogCard
                 title={b.title}
                 author={b.author}
@@ -89,7 +117,9 @@ export default function BlogList() {
             </Link>
           ))
         ) : (
-          <p className="text-gray-500">No blogs match your search.</p>
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No blogs match your search.</p>
+          </div>
         )}
       </div>
     </div>

@@ -1,7 +1,14 @@
 import express from "express";
-import { adminLogin } from "../controllers/admin.controller.js";
-const adminRouter= express.Router()
+import auth from "../middleware/auth.middleware.js";
 
-adminRouter.post("/login",adminLogin)
+const adminRouter = express.Router();
 
-export default adminRouter
+// Admin routes are now handled by /api/auth routes
+// This router can be used for admin-specific operations
+
+// Example: Admin-only dashboard stats (protected)
+adminRouter.get("/stats", auth, (req, res) => {
+  res.json({ success: true, message: "Admin stats endpoint" });
+});
+
+export default adminRouter;

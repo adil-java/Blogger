@@ -1,7 +1,7 @@
-/*  src/pages/admin/Comments.jsx  */
+/*  src/components/admin/TableBlog.jsx  */
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
-import React, { useState ,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Trash2Icon,
   CheckCircle2Icon,
@@ -9,21 +9,25 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 
-export default function TableBlog({ blogs_data }) {
-  const [loading, setLoading] = useState(true);
+export default function TableBlog({ blogs_data, onDelete, onTogglePublish, loading: externalLoading }) {
+  const [loading, setLoading] = useState(externalLoading ?? true);
+  
   useEffect(() => {
-    setTimeout(()=>{
-      setLoading(false)
-
-    },[1000])
-  }, [])
+    if (externalLoading !== undefined) {
+      setLoading(externalLoading);
+    } else {
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    }
+  }, [externalLoading]);
   
   return (
   
     <>
     {
       
-      !loading?(
+      !loading ? (
 
       <section className="overflow-auto rounded-lg shadow-md hidden sm:block">
         <table className="w-full text-left min-w-[640px]">
@@ -49,13 +53,17 @@ export default function TableBlog({ blogs_data }) {
                   )}
                 </td>
                 <td className="py-3 px-4">
-                  <ActionButtons blog={b} />
+                  <ActionButtons 
+                    blog={b} 
+                    onDelete={onDelete} 
+                    onTogglePublish={onTogglePublish} 
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </section>):(<section className="overflow-auto rounded-lg shadow hidden sm:block">
+      </section>) : (<section className="overflow-auto rounded-lg shadow hidden sm:block">
           <table className="w-full min-w-[720px] text-left">
             <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
               <tr>
@@ -114,7 +122,12 @@ export default function TableBlog({ blogs_data }) {
                 <Badge color="yellow" text="Draft" icon={<ClockIcon className="w-4 h-4" />} />
               )}
 
-              <ActionButtons blog={b} iconOnly />
+              <ActionButtons 
+                blog={b} 
+                iconOnly 
+                onDelete={onDelete} 
+                onTogglePublish={onTogglePublish} 
+              />
             </div>
           </div>
         ))}
@@ -140,10 +153,22 @@ function Badge({ color, text, icon }) {
   );
 }
 
-function ActionButtons({ blog, iconOnly = false }) {
+function ActionButtons({ blog, iconOnly = false, onDelete, onTogglePublish }) {
+  const handleToggle = () => {
+    if (onTogglePublish) {
+      onTogglePublish(blog._id);
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(blog._id);
+    }
+  };
+
   const unpublishBtn = (
     <button
-      onClick={() => alert(`Unpublish blog ${blog._id}`)}
+      onClick={handleToggle}
       className="inline-flex items-center gap-1 text-primary-600 hover:underline"
     >
       {iconOnly ? <XCircleIcon className="w-5 h-5" /> : <XCircleIcon className="w-4 h-4" />}
@@ -153,7 +178,7 @@ function ActionButtons({ blog, iconOnly = false }) {
 
   const publishBtn = (
     <button
-      onClick={() => alert(`Publish blog ${blog._id}`)}
+      onClick={handleToggle}
       className="inline-flex items-center gap-1 text-gray-600 hover:underline"
     >
       {iconOnly ? <CheckCircle2Icon className="w-5 h-5" /> : <CheckCircle2Icon className="w-4 h-4" />}
@@ -163,7 +188,7 @@ function ActionButtons({ blog, iconOnly = false }) {
 
   const deleteBtn = (
     <button
-      onClick={() => alert(`Delete blog ${blog._id}`)}
+      onClick={handleDelete}
       className={`inline-flex items-center gap-1 text-red-600 hover:underline ${
         iconOnly ? '' : 'ml-4'
       }`}

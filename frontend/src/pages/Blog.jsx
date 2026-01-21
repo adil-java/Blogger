@@ -1,47 +1,98 @@
 import React, { useState, useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-
-// import toast, { Toaster } from 'react-hot-toast';
+import {useNavigate} from "react-router-dom"
+import toast from 'react-hot-toast';
 import Moment from 'moment';
 import { useParams } from 'react-router-dom';
-import { assets, blogs_data, comments_data} from '../assets/assert';
+import { assets, blogs_data as fallbackBlogs, comments_data as fallbackComments } from '../assets/assert';
 import './Blog.css';                      /* ← import the stylesheet */
-import { FacebookIcon, Instagram, LinkedinIcon, XIcon, } from 'lucide-react';
+import { FacebookIcon, Instagram, LinkedinIcon, XIcon,HomeIcon } from 'lucide-react';
 import Loader from '../components/Loader';
 import Footer from '../components/Footer';
+import { blogAPI, commentAPI } from '../api/api';
 
 export default function Blog() {
   const { id }   = useParams();
   const [data, setData] = useState(null);
-  const [cmtData,setCmtData] =useState([])
-  const [name,     setName]     = useState('');
-  const [comment,  setComment]  = useState('');
-   
+  const [cmtData, setCmtData] = useState([]);
+  const [name, setName] = useState('');
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
   const addComment = async e => {
     e.preventDefault();
+    if (!name.trim() || !comment.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    
+    setSubmitting(true);
+    try {
+      const response = await commentAPI.add(id, name, comment);
+      if (response.success) {
+        toast.success('Comment submitted successfully!');
+        setName('');
+        setComment('');
+        // Refresh comments
+        fetchComments();
+      } else {
+        toast.error(response.message || 'Failed to submit comment');
+      }
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+      toast.error('Failed to submit comment');
+    } finally {
+      setSubmitting(false);
+    }
   };
-const Blogs = async()=>{
-const found = blogs_data.find(item => item._id == id);
 
-setData(found || null);
-}
-const fetchCmt =async()=>{
- setCmtData(comments_data)
-}
+  const fetchBlog = async () => {
+    try {
+      const response = await blogAPI.getById(id);
+      if (response.success) {
+        setData(response.blog);
+      } else {
+        // Fallback to static data
+        const found = fallbackBlogs.find(item => item._id == id);
+        setData(found || null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch blog:', error);
+      // Fallback to static data
+      const found = fallbackBlogs.find(item => item._id == id);
+      setData(found || null);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const response = await commentAPI.getByBlogId(id);
+      if (response.success) {
+        setCmtData(response.comments);
+      } else {
+        // Fallback to static data
+        setCmtData(fallbackComments.filter(c => c.blog?._id == id));
+      }
+    } catch (error) {
+      console.error('Failed to fetch comments:', error);
+      // Fallback to static data
+      setCmtData(fallbackComments.filter(c => c.blog?._id == id));
+    }
+  };
 
   useEffect(() => {
-    const timeout =setTimeout(()=>{
-      fetchCmt()
-      Blogs()
+    fetchBlog();
+    fetchComments();
+  }, [id]);
 
-    }, 1000)
-   return () => clearTimeout(timeout);
-    
-  }, []);
+
   if (!data) return (
-  <article className="blog-container">
+    <article className="blog-container">
+
+
     <header className="blog-meta">
+      
       <p className="blog-date">
         <Skeleton width={120} baseColor="#e2e8f0" highlightColor="#a8aafc" />
       </p>
@@ -83,7 +134,9 @@ const fetchCmt =async()=>{
     <>
     <article className="blog-container">
       {/* meta */}
+
       <header className="blog-meta">
+        <div onClick={()=>navigate('/')}>{<HomeIcon/>}</div>
         <p className="blog-date">
           Published on: {Moment(data.createdAt).format('MMMM Do, YYYY')}
         </p>
@@ -93,7 +146,7 @@ const fetchCmt =async()=>{
       </header>
 
       {/* hero image */}
-      <img className="blog-image" src={data.img} alt={data.title} />
+      <img className="blog-image" src={data.image || data.img} alt={data.title} />
 
       {/* rich text */}
       <section
@@ -103,13 +156,12 @@ const fetchCmt =async()=>{
 
     </article>
     <div className='mt-4 mb-10 max-w-3xl mx-auto '>
-      <p className='mb-3'> Comments:{`(${cmtData.filter(item => item.blog._id === data._id).length})`}</p>
+      <p className='mb-3'> Comments:{`(${cmtData.length})`}</p>
       <div className='flex flex-col gap-4'>
     
-      {cmtData.filter(item => item.blog._id === data._id)
-  .map((item, index) => (
+      {cmtData.map((item, index) => (
     <div
-      key={index}
+      key={item._id || index}
       className="relative bg-primary-300 border border-primary-400 max-w-xl p-4 rounded text-grey-600"
     >
       <div className="flex items-center gap-2 mb-2">
@@ -152,11 +204,11 @@ const fetchCmt =async()=>{
 
         <button
           type="submit"
-       
+          disabled={submitting}
           className="bg-primary-500 text-white font-medium px-6 py-2 w-full h-full rounded-md 
                      hover:bg-primary-600 disabled:opacity-60 transition-all"
         >
-          Submit
+          {submitting ? 'Submitting...' : 'Submit'}
         </button>
       </form>
     </div>
