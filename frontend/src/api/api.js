@@ -2,16 +2,12 @@ import axios from "axios";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-
-// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
-});
-
-// Add token to requests if available
+})
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("writerToken");
   if (token) {
@@ -19,8 +15,6 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-
-// Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -32,8 +26,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
-// ============ AUTH API ============
 export const authAPI = {
   login: async (email, password) => {
     const response = await api.post("/auth/login", { email, password });

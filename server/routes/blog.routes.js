@@ -10,6 +10,7 @@ import {
 } from "../controllers/blog.controller.js";
 import upload from "../middleware/multer.js";
 import auth from "../middleware/auth.middleware.js";
+import blogGen from "../controllers/blog.gemini.js";
 
 const blogRouter = express.Router();
 
@@ -20,6 +21,7 @@ blogRouter.get("/all", getAllBlogs);
 blogRouter.get("/my-blogs", auth, currentUserBlog);
 
 // More routes
+blogRouter.post("/generate",  blogGen);
 blogRouter.post("/add", upload.single("image"), auth, addBlog);
 blogRouter.delete("/:id", auth, deleteBlog);
 blogRouter.patch("/:id/toggle-publish", auth, togglePublish);
